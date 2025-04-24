@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивное портфолио-презентация</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6e8efb;
+            --secondary: #a777e3;
+            --dark: #1a1a1a;
+            --light: #f8f9fa;
+            --white: #ffffff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        .presentation-container {
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .slides-wrapper {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            overflow-x: auto;
+            width: 100%;
+            scroll-snap-type: x mandatory;
+        }
+
+        .slide {
+            flex: 0 0 80%;
+            min-width: 0;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            scroll-snap-align: center;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .slide:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .slide-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .slide-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .editable {
+            min-height: 20px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: var(--transition);
+            cursor: text;
+        }
+
+        .editable:hover {
+            background-color: rgba(110, 142, 251, 0.1);
+        }
+
+        .editable:focus {
+            outline: none;
+            background-color: rgba(110, 142, 251, 0.15);
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+
+        .about-content {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .about-text {
+            flex: 1;
+            line-height: 1.7;
+            font-size: 1.1rem;
+        }
+
+        .skills-container {
+            flex: 0 0 250px;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .skill {
+            background: rgba(110, 142, 251, 0.1);
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .project-card {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            transition: var(--transition);
+        }
+
+        .project-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .certificates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .certificate-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .certificate-image {
+            height: 120px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        .certificate-details {
+            padding: 15px;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 10px;
+        }
+
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: var(--transition);
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                flex: 0 0 90%;
+            }
+            
+            .about-content {
+                flex-direction: column;
+            }
+            
+            .projects-grid, .contact-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="slides-wrapper">
+            <!-- Слайд 1: Приветствие -->
+            <div class="slide">
+                <h1 class="slide-title">Добро пожаловать в моё портфолио</h1>
+                <div class="editable" contenteditable="true" id="welcome-text">
+                    Я <strong>[Ваше имя]</strong>, <strong>[Ваша профессия]</strong> с опытом в <strong>[сфере деятельности]</strong>.
+                    Рад представить вам свои работы и профессиональные навыки.
+                </div>
+            </div>
+
+            <!-- Слайд 2: Обо мне -->
+            <div class="slide">
+                <h2 class="slide-title">Обо мне</h2>
+                <div class="about-content">
+                    <div class="about-text editable" contenteditable="true" id="about-text">
+                        Я профессиональный [профессия] с [X] годами опыта. Специализируюсь на [ключевые навыки]. 
+                        Моя страсть к [специализации] позволяет создавать [тип работ], которые [результат для клиента].
+                        <br><br>
+                        В работе уделяю особое внимание [ключевые принципы], что позволяет достигать [измеримые результаты].
+                        Имею опыт работы с [компании/клиенты]. Всегда открыт для новых вызовов и интересных проектов!
+                    </div>
+                    <div class="skills-container">
+                        <h3>Мои навыки</h3>
+                        <div class="skills-list" id="skills-list">
+                            <div class="skill editable" contenteditable="true">Навык 1</div>
+                            <div class="skill editable" contenteditable="true">Навык 2</div>
+                            <div class="skill editable" contenteditable="true">Навык 3</div>
+                            <div class="skill editable" contenteditable="true">Навык 4</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Слайд 3: Проекты -->
+            <div class="slide">
+                <h2 class="slide-title">Мои проекты</h2>
+                <div class="projects-grid" id="projects-grid">
+                    <div class="project-card">
+                        <h3 class="editable" contenteditable="true">Название проекта 1</h3>
+                        <p class="editable" contenteditable="true">Описание проекта и использованных технологий</p>
+                    </div>
+                    <div class="project-card">
+                        <h3 class="editable" contenteditable="true">Название проекта 2</h3>
+                        <p class="editable" contenteditable="true">Описание проекта и достигнутых результатов</p>
+                    </div>
+                    <div class="project-card">
+                        <h3 class="editable" contenteditable="true">Название проекта 3</h3>
+                        <p class="editable" contenteditable="true">Описание проекта и отзывы клиента</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Слайд 4: Сертификаты -->
+            <div class="slide">
+                <h2 class="slide-title">Мои сертификаты</h2>
+                <div class="certificates-grid" id="certificates-grid">
+                    <div class="certificate-card">
+                        <div class="certificate-image">
+                            <i class="fas fa-certificate fa-3x"></i>
+                        </div>
+                        <div class="certificate-details">
+                            <div class="editable" contenteditable="true">Название сертификата</div>
+                            <div class="editable" contenteditable="true" style="font-size: 0.9rem; color: #666;">Организация, год</div>
+                        </div>
+                    </div>
+                    <div class="certificate-card">
+                        <div class="certificate-image">
+                            <i class="fas fa-certificate fa-3x"></i>
+                        </div>
+                        <div class="certificate-details">
+                            <div class="editable" contenteditable="true">Название сертификата</div>
+                            <div class="editable" contenteditable="true" style="font-size: 0.9rem; color: #666;">Организация, год</div>
+                        </div>
+                    </div>
+                    <div class="certificate-card">
+                        <div class="certificate-image">
+                            <i class="fas fa-certificate fa-3x"></i>
+                        </div>
+                        <div class="certificate-details">
+                            <div class="editable" contenteditable="true">Название сертификата</div>
+                            <div class="editable" contenteditable="true" style="font-size: 0.9rem; color: #666;">Организация, год</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Слайд 5: Контакты -->
+            <div class="slide">
+                <h2 class="slide-title">Контакты</h2>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.9rem; color: #777;">Email</div>
+                            <div class="editable" contenteditable="true">example@email.com</div>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.9rem; color: #777;">Телефон</div>
+                            <div class="editable" contenteditable="true">+7 (123) 456-78-90</div>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.9rem; color: #777;">Локация</div>
+                            <div class="editable" contenteditable="true">Москва, Россия</div>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.9rem; color: #777;">Соцсети</div>
+                            <div class="editable" contenteditable="true">@ваш_профиль</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn" id="save-btn" title="Сохранить изменения">
+            <i class="fas fa-save"></i>
+        </button>
+        <button class="control-btn" id="add-slide-btn" title="Добавить слайд">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <script>
+        // Автоматическая загрузка сохраненных данных
+        function loadData() {
+            const savedData = localStorage.getItem('portfolioPresentation');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                // Заполняем все редактируемые поля
+                document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+                    const id = el.id || el.getAttribute('data-id');
+                    if (id && data[id]) {
+                        el.innerHTML = data[id];
+                    }
+                });
+            }
+        }
+
+        // Сохранение всех данных
+        function saveData() {
+            const data = {};
+            
+            document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+                const id = el.id || el.getAttribute('data-id') || generateId();
+                if (!el.id) el.id = id;
+                data[id] = el.innerHTML;
+            });
+            
+            localStorage.setItem('portfolioPresentation', JSON.stringify(data));
+            alert('Изменения сохранены!');
+        }
+
+        // Генерация ID для новых элементов
+        function generateId() {
+            return 'editable-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Добавление нового слайда
+        function addNewSlide() {
+            const slidesWrapper = document.querySelector('.slides-wrapper');
+            const slideCount = document.querySelectorAll('.slide').length + 1;
+            
+            const newSlide = document.createElement('div');
+            newSlide.className = 'slide';
+            newSlide.innerHTML = `
+                <h2 class="slide-title editable" contenteditable="true">Новый слайд ${slideCount}</h2>
+                <div class="editable" contenteditable="true" style="min-height: 300px;">
+                    Добавьте содержимое для этого слайда...
+                </div>
+            `;
+            
+            slidesWrapper.appendChild(newSlide);
+            
+            // Прокрутка к новому слайду
+            newSlide.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            // Загрузка сохраненных данных
+            loadData();
+            
+            // Обработчики кнопок
+            document.getElementById('save-btn').addEventListener('click', saveData);
+            document.getElementById('add-slide-btn').addEventListener('click', addNewSlide);
+            
+            // Автосохранение при изменении текста
+            document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+                el.addEventListener('blur', function() {
+                    const data = {};
+                    const id = this.id || generateId();
+                    if (!this.id) this.id = id;
+                    data[id] = this.innerHTML;
+                    
+                    const savedData = JSON.parse(localStorage.getItem('portfolioPresentation') || {});
+                    localStorage.setItem('portfolioPresentation', JSON.stringify({
+                        ...savedData,
+                        ...data
+                    }));
+                });
+            });
+        });
+    </script>
+</body>
+</html>
